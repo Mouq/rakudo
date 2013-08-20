@@ -2964,7 +2964,7 @@ grammar Perl6::Grammar is HLL::Grammar does STD {
         }
         <rx_adverbs>
         <tribble(%*RX<P5> ?? %*LANG<P5Regex> !! %*LANG<Regex>, %*LANG<Q>, ['cc'])>
-        <.old_rx_mods>?
+        <.old_tr_mods>?
         <.NYI('tr///')>
     }
 
@@ -2982,6 +2982,19 @@ grammar Perl6::Grammar is HLL::Grammar does STD {
             else            { $/.CURSOR.obs('suffix regex modifiers','prefix adverbs');   }
         }
     }
+
+    token old_tr_mods {
+        (<[ c d s ]>)
+        {
+            my $m := $/[0].Str;
+            my $c := $/.CURSOR;
+            if $m eq 'c' { $c.obs('/c',':c'); }
+            if $m eq 'd' { $c.obs('/g',':d'); }
+            if $m eq 's' { $c.obs('/s',':s'); }
+            else { $c.obs('suffix transliteration modifiers','prefix adverbs'); }
+        }
+    }
+
 
     token quote:sym<quasi> {
         <sym> <.ws> <!before '('>
