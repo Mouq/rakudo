@@ -2965,7 +2965,7 @@ grammar Perl6::Grammar is HLL::Grammar does STD {
         <rx_adverbs>
         <tribble(%*RX<P5> ?? %*LANG<P5Regex> !! %*LANG<Regex>, %*LANG<Q>, ['cc'])>
         <.old_tr_mods>?
-        <.NYI('tr///')>
+        #<.NYI('tr///')>
     }
 
     token old_rx_mods {

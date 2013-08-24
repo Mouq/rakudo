@@ -5232,6 +5232,7 @@ class Perl6::Actions is HLL::Actions does STDActions {
     my %SUBST_ALLOWED_ADVERBS;
     my %SHARED_ALLOWED_ADVERBS;
     my %MATCH_ALLOWED_ADVERBS;
+    my %TRANS_ALLOWED_ADVERBS;
     my %MATCH_ADVERBS_MULTIPLE := hash(
         x       => 1,
         g       => 1,
@@ -5276,6 +5277,12 @@ class Perl6::Actions is HLL::Actions does STDActions {
         $mods := 'x c continue p pos nth th st nd rd g global ov overlap ex exhaustive';
         for nqp::split(' ', $mods) {
             %MATCH_ALLOWED_ADVERBS{$_} := 1;
+        }
+
+        $mods := 's c d';
+        # XXX Need to check spec (S:03 transliteration)
+        for nqp::split(' ', $mods) {
+            %TRANS_ALLOWED_ADVERBS{$_} := 1;
         }
     }
 
@@ -5442,7 +5449,45 @@ class Perl6::Actions is HLL::Actions does STDActions {
 
         $past<is_subst> := 1;
         $past
-}
+    }
+
+    method quote:sym<tr>($/) {
+        # Build the regex.
+#        my $rx_block := QAST::Block.new(QAST::Stmts.new, QAST::Stmts.new, :node($/));
+        my %sig_info := hash(parameters => []);
+        my $pair_coderef := #regex_coderef($/, $*W.stub_code_object('Pair'),
+        QAST::Op.new(
+            :op('callmethod'), :name('new'), :returns($*W.find_symbol(['Pair'])),
+            QAST::Var.new( :name('Pair'), :scope('lexical') ),
+            ~$<tribble><left>, ~$<tribble><right>
+        );
+        # Quote needs to be closure-i-fied.
+        # my $closure := block_closure(make_thunk_ref($<tribble><right>.ast, $<tribble><right>));
+
+        # make $_ = $_.trans(...)
+        my $past := QAST::Op.new(
+            :node($/),
+            :op('callmethod'), :name('trans'),
+            QAST::Var.new( :name('$_'), :scope('lexical') ),
+            $pair_coderef#, $closure
+        );
+#        self.handle_and_check_adverbs($/, %TRANS_ALLOWED_ADVERBS, 'transliteration', $past);
+#        if $/[0] {
+#            $past.push(QAST::IVal.new(:named('samespace'), :value(1)));
+#        }
+#        $past.push(QAST::IVal.new(:named('SET_CALLER_DOLLAR_SLASH'), :value(1)));
+#
+#        $past := make QAST::Op.new(
+#            :node($/),
+#            :op('call'),
+#            :name('&infix:<=>'),
+#            QAST::Var.new(:name('$_'), :scope('lexical')),
+#            $past
+#        );
+#
+#        $past<is_subst> := 1;
+        $past
+    }
 
     method quote:sym<quasi>($/) {
         my $ast_class := $*W.find_symbol(['AST']);
