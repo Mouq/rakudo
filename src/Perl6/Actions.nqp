@@ -3733,7 +3733,7 @@ class Perl6::Actions is HLL::Actions does STDActions {
             make $<postop>.ast;
         }
         else {
-            make $<colonpair>.ast;
+            make QAST::Op.new( :name('&prefix:<' ~ $<colonpair>.value.Str ~ '>'), :op<call>, $<colonpair>.ast );
         }
     }
 
