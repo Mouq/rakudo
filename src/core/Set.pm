@@ -174,7 +174,7 @@ my class Set is Iterable does Associative {
     method values { %!elems.values }
     method elems returns Int { %!elems.elems }
     method exists($a) returns Bool { %!elems.exists($a) }
-    method delete($a) {
+    method delete($a) is hidden_from_backtrace {
         X::Immutable.new( method => 'delete', typename => self.^name ).throw;
     }
     method Bool { %!elems.Bool }
@@ -187,7 +187,6 @@ my class Set is Iterable does Associative {
     method KeyBag { KeyBag.new(self.keys) }
 
     method at_key($k) { ?(%!elems{$k} // False) }
-    method exists_key($k) { self.exists($k) }
 
     # Constructor
     method new(*@args --> Set) {

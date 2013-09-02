@@ -1358,6 +1358,7 @@ grammar Perl6::Grammar is HLL::Grammar does STD {
     proto token statement_prefix { <...> }
     token statement_prefix:sym<BEGIN>   { <sym> <blorst> }
     token statement_prefix:sym<COMPOSE> { <sym> <blorst> }
+    token statement_prefix:sym<TEMP>    { <sym> <blorst> }
     token statement_prefix:sym<CHECK>   { <sym> <blorst> }
     token statement_prefix:sym<INIT>    { <sym> <blorst> }
     token statement_prefix:sym<ENTER>   { <sym> <blorst> }
@@ -2960,15 +2961,11 @@ grammar Perl6::Grammar is HLL::Grammar does STD {
     }
 
     token quote:sym<tr> {
-        <sym> (s)**0..1 >>
+        <sym>
         :my %*RX;
-        {
-            %*RX<tr> := 1 if $/[0]
-        }
         <rx_adverbs>
         <tribble(%*RX<P5> ?? %*LANG<P5Regex> !! %*LANG<Regex>, %*LANG<Q>, ['cc'])>
         <.old_rx_mods>?
-        <.NYI('tr///')>
     }
 
     token old_rx_mods {

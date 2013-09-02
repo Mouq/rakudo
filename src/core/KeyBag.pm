@@ -5,7 +5,8 @@ my class KeyBag does Associative does Baggy {
     method keys { %!elems.keys }
     method values { %!elems.values }
     method elems returns Int { [+] self.values }
-    method exists($a) returns Bool { %!elems.exists($a) }
+    method exists($k) returns Bool { %!elems.exists($k) }
+    method delete($k) { %!elems.delete($k) }
     method Bool { %!elems.Bool }
     method Numeric { self.elems }
     method Real { self.elems }
@@ -16,11 +17,20 @@ my class KeyBag does Associative does Baggy {
     method KeyBag { self }
 
     method at_key($k) {
-        Proxy.new(FETCH => { %!elems.exists($k) ?? %!elems{$k} !! 0 },
-                  STORE => -> $, $value { if $value > 0 { %!elems{$k} = $value } else { %!elems.delete($k) }});
+        Proxy.new(
+          FETCH => {
+              %!elems{$k} // 0;
+          },
+          STORE => -> $, $value {
+              if $value > 0 {
+                  %!elems{$k} = $value;
+              }
+              else {
+                  %!elems.delete($k);
+              }
+          }
+        );
     }
-    method exists_key($k) { self.exists($k) }
-    method delete_key($k) { %!elems.delete($k) }
 
     # Constructor
     method new(*@args --> KeyBag) {
