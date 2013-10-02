@@ -756,6 +756,14 @@ grammar Perl6::Grammar is HLL::Grammar does STD {
         [ <!before \h* \n> <table_row>]*
     }
 
+    token pod_block:sym<obsolete> {
+        ^^
+        '=pod' <pod_newline>
+        [ <!before \h* '=' \w> \N+ \n]*
+        '=cut' »
+        <.obs('=cut','=begin/=end')>
+    }
+
     token pod_newline {
         \h* \n
     }
